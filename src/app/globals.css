@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Warm Creative Developer Palette: Cream canvas, dark navy typography, warm orange accent */
+    --background: 38 35% 96%;          /* #F8F4EB - warm cream */
+    --foreground: 222 53% 14%;         /* #101A35 - dark navy/charcoal */
+    --card: 38 30% 98%;               /* #FAF7F2 - crisp warm ivory */
+    --card-foreground: 222 53% 14%;
+    --popover: 38 30% 98%;
+    --popover-foreground: 222 53% 14%;
+    --primary: 22 100% 59%;            /* #FF7A2F - warm vibrant orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 36 26% 91%;           /* #EFE6D8 - warm beige */
+    --secondary-foreground: 222 45% 18%;
+    --muted: 36 20% 92%;              /* #EAE3D6 - soft sand */
+    --muted-foreground: 220 16% 45%;   /* #647087 - readable muted slate */
+    --accent: 36 28% 90%;             /* #EDE3D4 */
+    --accent-foreground: 222 53% 14%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 35 22% 86%;              /* #E6DCce - soft warm border */
+    --input: 35 22% 86%;
+    --ring: 22 100% 59%;               /* warm orange focus */
+    --radius: 1rem;
+  }
+
+  .dark {
+    /* Refined Deep Warm Charcoal & Navy (No neon, no harsh cyberpunk) */
+    --background: 224 28% 10%;         /* #121620 - warm deep charcoal */
+    --foreground: 36 25% 94%;          /* #F6F1EA - warm off-white */
+    --card: 223 26% 14%;              /* #181E2C - rich navy slate */
+    --card-foreground: 36 25% 94%;
+    --popover: 223 26% 14%;
+    --popover-foreground: 36 25% 94%;
+    --primary: 22 100% 59%;            /* #FF7A2F - consistent signature orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 22% 20%;
+    --secondary-foreground: 36 25% 94%;
+    --muted: 222 22% 18%;
+    --muted-foreground: 220 14% 65%;
+    --accent: 222 24% 20%;
+    --accent-foreground: 36 25% 94%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 20% 22%;             /* #273145 */
+    --input: 222 20% 22%;
+    --ring: 22 100% 59%;
+  }
+}
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Warm artistic background texture */
+.bg-warm-canvas {
+  background-color: hsl(var(--background));
+  background-image: 
+    radial-gradient(at 10% 15%, rgba(255, 122, 47, 0.04) 0px, transparent 40%),
+    radial-gradient(at 90% 85%, rgba(251, 191, 36, 0.05) 0px, transparent 45%);
+}
+
+.dark .bg-warm-canvas {
+  background-image: 
+    radial-gradient(at 10% 15%, rgba(255, 122, 47, 0.06) 0px, transparent 40%),
+    radial-gradient(at 90% 85%, rgba(16, 26, 53, 0.4) 0px, transparent 45%);
+}
+
+/* Soft tactile shadows */
+.shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(16, 26, 53, 0.05), 0 2px 6px -1px rgba(16, 26, 53, 0.03);
+}
+
+.shadow-soft-lg {
+  box-shadow: 0 12px 36px -4px rgba(16, 26, 53, 0.08), 0 4px 12px -2px rgba(16, 26, 53, 0.04);
+}
+
+.dark .shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+}
+
+.dark .shadow-soft-lg {
+  box-shadow: 0 12px 36px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
