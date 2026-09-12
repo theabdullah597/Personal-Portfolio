@@ -8,6 +8,33 @@ export async function uploadFile(
   bucket: string = STORAGE_BUCKET_MEDIA,
   folder: string = "uploads"
 ): Promise<{ url: string | null; error: string | null }> {
+  // 1. Try server-side upload route (/api/upload)
+  // Handles authentication, service role key bypass, and Base64 image fallback
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("bucket", bucket);
+    formData.append("folder", folder);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.url) {
+        return { url: data.url, error: null };
+      }
+      if (data.error) {
+        return { url: null, error: data.error };
+      }
+    }
+  } catch (apiErr) {
+    console.warn("API upload route attempt error, falling back to direct client:", apiErr);
+  }
+
+  // 2. Direct browser-to-Supabase upload fallback
   try {
     const supabase = createClient();
     const fileExt = file.name.split(".").pop();
@@ -17,7 +44,7 @@ export async function uploadFile(
       .from(bucket)
       .upload(fileName, file, {
         cacheControl: "3600",
-        upsert: false,
+        upsert: true,
       });
 
     if (uploadError) {
