@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Wrench, Sparkles } from "lucide-react";
-import { Skill, SkillCategory } from "@/types";
+import { ArrowRight, Wrench } from "lucide-react";
+import { motion } from "framer-motion";
+import { Skill } from "@/types";
 import { Button } from "@/components/ui/button";
 import { SkillIcon } from "@/components/ui/skill-icon";
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations/fade-in";
+import { FadeIn } from "@/components/animations/fade-in";
 
 interface SkillsOverviewSectionProps {
   skills: Skill[];
@@ -14,15 +15,23 @@ interface SkillsOverviewSectionProps {
 
 export function SkillsOverviewSection({ skills }: SkillsOverviewSectionProps) {
   const categories = React.useMemo(() => {
-    const cats = Array.from(new Set(skills.map((s) => s.category)));
+    const cats = Array.from(
+      new Set(skills.map((s) => s.category).filter(Boolean))
+    );
     return ["All", ...cats];
   }, [skills]);
 
   const [activeCategory, setActiveCategory] = React.useState("All");
 
   const filtered = React.useMemo(() => {
-    if (activeCategory === "All") return skills.filter((s) => s.featured || skills.length <= 12);
-    return skills.filter((s) => s.category === activeCategory);
+    if (activeCategory === "All") {
+      const featured = skills.filter((s) => s.featured);
+      // Show featured skills if available; otherwise show all skills
+      return featured.length > 0 ? featured : skills;
+    }
+    return skills.filter(
+      (s) => s.category?.toLowerCase() === activeCategory.toLowerCase()
+    );
   }, [skills, activeCategory]);
 
   return (
@@ -60,7 +69,7 @@ export function SkillsOverviewSection({ skills }: SkillsOverviewSectionProps) {
                 key={cat}
                 type="button"
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all shadow-xs ${
+                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all shadow-xs cursor-pointer ${
                   activeCategory === cat
                     ? "bg-primary text-primary-foreground shadow-soft"
                     : "bg-card text-muted-foreground hover:text-foreground border border-border/70 hover:border-primary/40"
@@ -72,48 +81,55 @@ export function SkillsOverviewSection({ skills }: SkillsOverviewSectionProps) {
           </div>
         </FadeIn>
 
-        {/* Skills Cards Grid */}
-        <StaggerContainer staggerDelay={0.05} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        {/* Skills Cards Grid - Keyed by activeCategory so switching tabs re-animates smoothly without dropping cards */}
+        <motion.div
+          key={activeCategory}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5"
+        >
           {filtered.map((skill) => (
-            <StaggerItem key={skill.id}>
-              <div className="p-5 rounded-2xl border border-border/80 bg-card hover:border-primary/50 transition-all duration-300 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 space-y-3 h-full">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
-                    <SkillIcon name={skill.icon} className="w-5 h-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-foreground truncate">
-                      {skill.name}
-                    </h4>
-                    <span className="text-[11px] text-muted-foreground block truncate font-medium">
-                      {skill.category}
-                    </span>
-                  </div>
+            <div
+              key={skill.id}
+              className="p-5 rounded-2xl border border-border/80 bg-card hover:border-primary/50 transition-all duration-300 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 space-y-3 h-full"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
+                  <SkillIcon name={skill.icon} className="w-5 h-5" />
                 </div>
-
-                {skill.description && (
-                  <p className="text-xs text-muted-foreground/80 line-clamp-1">
-                    {skill.description}
-                  </p>
-                )}
-
-                {/* Meter */}
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span className="font-medium">Proficiency</span>
-                    <span className="font-mono font-semibold text-primary">{skill.proficiency ?? 85}%</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-amber-500 to-primary rounded-full transition-all duration-500"
-                      style={{ width: `${skill.proficiency ?? 85}%` }}
-                    />
-                  </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-bold text-foreground truncate">
+                    {skill.name}
+                  </h4>
+                  <span className="text-[11px] text-muted-foreground block truncate font-medium">
+                    {skill.category}
+                  </span>
                 </div>
               </div>
-            </StaggerItem>
+
+              {skill.description && (
+                <p className="text-xs text-muted-foreground/80 line-clamp-1">
+                  {skill.description}
+                </p>
+              )}
+
+              {/* Meter */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span className="font-medium">Proficiency</span>
+                  <span className="font-mono font-semibold text-primary">{skill.proficiency ?? 85}%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 to-primary rounded-full transition-all duration-500"
+                    style={{ width: `${skill.proficiency ?? 85}%` }}
+                  />
+                </div>
+              </div>
+            </div>
           ))}
-        </StaggerContainer>
+        </motion.div>
       </div>
     </section>
   );
