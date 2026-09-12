@@ -42,6 +42,14 @@ export const metadata: Metadata = {
     "React Three Fiber",
   ],
   authors: [{ name: "Abdullah" }],
+  icons: {
+    icon: [
+      { url: "/logo.png" },
+      { url: "/icon.png" },
+    ],
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

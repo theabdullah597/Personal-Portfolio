@@ -42,9 +42,9 @@ export default function AdminSettingsPage() {
   // Sync state when brand provider loads
   React.useEffect(() => {
     if (brand) {
-      setBrandName(brand.brandName || "Abdullah");
-      setLogoUrl(brand.logoUrl || "");
-      setUseCustomLogo(brand.useCustomLogo || false);
+      if (brand.brandName) setBrandName(brand.brandName);
+      if (brand.logoUrl) setLogoUrl(brand.logoUrl);
+      if (brand.useCustomLogo !== undefined) setUseCustomLogo(brand.useCustomLogo);
     }
   }, [brand?.brandName, brand?.logoUrl, brand?.useCustomLogo]);
 
@@ -100,6 +100,8 @@ export default function AdminSettingsPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("bucket", "portfolio-media");
+      formData.append("folder", "logos");
 
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -138,13 +140,15 @@ export default function AdminSettingsPage() {
     e.preventDefault();
     setIsSavingBrand(true);
     try {
+      const resolvedLogo = useCustomLogo ? (logoUrl.trim() || "/logo.png") : null;
       const success = await brand.updateBrand({
         brandName,
-        logoUrl: useCustomLogo ? logoUrl : null,
+        logoUrl: resolvedLogo,
         useCustomLogo,
       });
 
       if (success) {
+        setLogoUrl(resolvedLogo || "");
         showToast({
           type: "success",
           title: "Brand Settings Saved",
@@ -316,7 +320,10 @@ export default function AdminSettingsPage() {
 
                     <button
                       type="button"
-                      onClick={() => setUseCustomLogo(true)}
+                      onClick={() => {
+                        setUseCustomLogo(true);
+                        if (!logoUrl) setLogoUrl("/logo.png");
+                      }}
                       className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
                         useCustomLogo
                           ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary/30"
@@ -337,7 +344,16 @@ export default function AdminSettingsPage() {
                 {/* Custom Logo Upload & URL (Visible when Custom is chosen) */}
                 {useCustomLogo && (
                   <div className="space-y-3 p-4 rounded-2xl border border-primary/20 bg-card/60 animate-in fade-in slide-in-from-top-2">
-                    <Label htmlFor="logo_url">Custom Logo File or URL</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="logo_url">Custom Logo File or URL</Label>
+                      <button
+                        type="button"
+                        onClick={() => setLogoUrl("/logo.png")}
+                        className="text-[11px] text-primary hover:underline font-medium cursor-pointer"
+                      >
+                        Use &quot;/logo.png&quot; from project
+                      </button>
+                    </div>
 
                     {/* Hidden device file input */}
                     <input
