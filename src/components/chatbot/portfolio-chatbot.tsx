@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type Message = {
@@ -81,13 +82,13 @@ export function PortfolioChatbot() {
         ...prev,
         { role: "model", content: data.text },
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setMessages((prev) => [
         ...prev,
         {
           role: "model",
-          content: "Sorry, I am currently unavailable. Please try again later.",
+          content: error?.message || "Sorry, I am currently unavailable. Please try again later.",
         },
       ]);
     } finally {
@@ -150,7 +151,7 @@ export function PortfolioChatbot() {
                       "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground rounded-tr-sm"
-                        : "bg-white dark:bg-black/20 border border-primary/10 rounded-tl-sm text-foreground"
+                        : "bg-primary/10 dark:bg-primary/20 border border-primary/20 rounded-tl-sm text-foreground"
                     )}
                   >
                     {/* Basic markdown-like rendering (line breaks) */}
@@ -168,7 +169,7 @@ export function PortfolioChatbot() {
                   <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                     <Bot size={16} />
                   </div>
-                  <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-white dark:bg-black/20 border border-primary/10 flex items-center gap-2">
+                  <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-primary/10 dark:bg-primary/20 border border-primary/20 flex items-center gap-2">
                     <Loader2 size={14} className="animate-spin text-primary" />
                     <span className="text-xs text-muted-foreground">Thinking...</span>
                   </div>
@@ -231,8 +232,15 @@ export function PortfolioChatbot() {
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: -90, opacity: 0 }}
               transition={{ duration: 0.15 }}
+              className="relative w-full h-full overflow-hidden rounded-full"
             >
-              <MessageCircle size={24} />
+              <Image 
+                src="/3d-bot.jpg" 
+                alt="AI Chatbot" 
+                fill 
+                className="object-cover"
+                sizes="56px"
+              />
             </motion.div>
           )}
         </AnimatePresence>
