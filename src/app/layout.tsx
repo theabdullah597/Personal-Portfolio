@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import { BrandProvider } from "@/components/brand/brand-provider";
+import { PortfolioChatbot } from "@/components/chatbot/portfolio-chatbot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,6 +75,7 @@ export default function RootLayout({
           <BrandProvider>
             <ToastProvider>
               {children}
+              <PortfolioChatbot />
             </ToastProvider>
           </BrandProvider>
         </ThemeProvider>
