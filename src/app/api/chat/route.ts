@@ -116,7 +116,7 @@ ${socialLinks.map((s) => `- ${s.platform}: ${s.url}`).join("\n")}
   } catch (error: any) {
     console.error("Chatbot API Error:", error);
     return NextResponse.json(
-      { error: "Failed to process your request." },
+      { error: error?.message || "Failed to process your request." },
       { status: 500 }
     );
   }

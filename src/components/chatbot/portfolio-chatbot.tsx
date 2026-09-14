@@ -138,13 +138,19 @@ export function PortfolioChatbot() {
                 >
                   <div
                     className={cn(
-                      "shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+                      "shrink-0 w-8 h-8 rounded-full flex items-center justify-center overflow-hidden",
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground"
-                        : "bg-primary/10 text-primary"
+                        : "bg-transparent"
                     )}
                   >
-                    {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
+                    {msg.role === "user" ? (
+                      <User size={16} />
+                    ) : (
+                      <div className="relative w-full h-full">
+                        <Image src="/3d-bot.jpg" alt="AI" fill className="object-cover" sizes="32px" />
+                      </div>
+                    )}
                   </div>
                   <div
                     className={cn(
@@ -166,8 +172,8 @@ export function PortfolioChatbot() {
               ))}
               {isLoading && (
                 <div className="flex gap-3 max-w-[85%]">
-                  <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                    <Bot size={16} />
+                  <div className="shrink-0 w-8 h-8 rounded-full overflow-hidden relative">
+                    <Image src="/3d-bot.jpg" alt="AI" fill className="object-cover" sizes="32px" />
                   </div>
                   <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-primary/10 dark:bg-primary/20 border border-primary/20 flex items-center gap-2">
                     <Loader2 size={14} className="animate-spin text-primary" />
