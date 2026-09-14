@@ -1,4 +1,4 @@
-import { createClient as createServerSupabase, createAdminClient } from "./server";
+import { createClient as createServerSupabase, createAdminClient, createPublicClient } from "./server";
 import { getTombstoneSet, addTombstone, removeTombstone } from "@/lib/tombstones";
 import {
   Profile,
@@ -43,6 +43,18 @@ function isSupabaseConfigured(): boolean {
 }
 
 /**
+ * Returns a Supabase client for reading public data.
+ * Does not touch cookies(), making it safe for SSG, ISR, and dynamic routes.
+ */
+function getDbReadClient() {
+  const adminClient = createAdminClient();
+  if (adminClient) {
+    return adminClient;
+  }
+  return createPublicClient();
+}
+
+/**
  * Returns a Supabase client for mutations.
  * If SUPABASE_SERVICE_ROLE_KEY is set in .env.local, it uses the admin client (bypasses RLS).
  * Otherwise, it falls back to the server client.
@@ -63,7 +75,7 @@ export async function getProfile(): Promise<Profile> {
     return memoryStore.profile;
   }
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     const { data, error } = await supabase.from("profiles").select("*").single();
     if (error || !data) return memoryStore.profile;
     return data as Profile;
@@ -116,7 +128,7 @@ export async function getProjects(options?: {
   }
 
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     let query = supabase.from("projects").select("*").order("display_order", { ascending: true });
 
     if (options?.publishedOnly) query = query.eq("published", true);
@@ -154,22 +166,72 @@ function getProjectsFallback(options?: {
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
   const tombstones = getTombstoneSet();
+  const cleanSlug = decodeURIComponent(slug || "").trim();
+
   if (!isSupabaseConfigured()) {
-    const proj = memoryStore.projects.find((p) => p.slug === slug);
+    const proj = memoryStore.projects.find(
+      (p) =>
+        p.slug === cleanSlug ||
+        p.slug.toLowerCase() === cleanSlug.toLowerCase() ||
+        p.id === cleanSlug
+    );
     if (proj && !tombstones.has(proj.id)) return proj;
     return null;
   }
   try {
-    const supabase = await createServerSupabase();
-    const { data, error } = await supabase.from("projects").select("*").eq("slug", slug).single();
+    const supabase = getDbReadClient();
+    // 1. Try exact match on slug
+    let { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("slug", cleanSlug)
+      .maybeSingle();
+
+    // 2. If not found, try case-insensitive match on slug
+    if (!data) {
+      const res = await supabase
+        .from("projects")
+        .select("*")
+        .ilike("slug", cleanSlug)
+        .limit(1);
+      if (res.data && res.data.length > 0) {
+        data = res.data[0];
+        error = null;
+      }
+    }
+
+    // 3. If still not found, try match on ID
+    if (!data) {
+      const res = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", cleanSlug)
+        .maybeSingle();
+      if (res.data) {
+        data = res.data;
+        error = null;
+      }
+    }
+
     if (error || !data || tombstones.has(data.id)) {
-      const fallback = memoryStore.projects.find((p) => p.slug === slug);
+      const fallback = memoryStore.projects.find(
+        (p) =>
+          p.slug === cleanSlug ||
+          p.slug.toLowerCase() === cleanSlug.toLowerCase() ||
+          p.id === cleanSlug
+      );
       if (fallback && !tombstones.has(fallback.id)) return fallback;
       return null;
     }
     return data as Project;
-  } catch {
-    const fallback = memoryStore.projects.find((p) => p.slug === slug);
+  } catch (err) {
+    console.error("getProjectBySlug error:", err);
+    const fallback = memoryStore.projects.find(
+      (p) =>
+        p.slug === cleanSlug ||
+        p.slug.toLowerCase() === cleanSlug.toLowerCase() ||
+        p.id === cleanSlug
+    );
     if (fallback && !tombstones.has(fallback.id)) return fallback;
     return null;
   }
@@ -272,7 +334,7 @@ export async function getSkills(): Promise<Skill[]> {
       .sort((a, b) => a.display_order - b.display_order);
   }
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     const { data, error } = await supabase
       .from("skills")
       .select("*")
@@ -366,7 +428,7 @@ export async function getExperiences(): Promise<Experience[]> {
       .sort((a, b) => a.display_order - b.display_order);
   }
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     const { data, error } = await supabase
       .from("experiences")
       .select("*")
@@ -462,7 +524,7 @@ export async function getEducation(): Promise<Education[]> {
       .sort((a, b) => a.display_order - b.display_order);
   }
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     const { data, error } = await supabase
       .from("education")
       .select("*")
@@ -557,7 +619,7 @@ export async function getServices(activeOnly: boolean = false): Promise<Service[
     return list.sort((a, b) => a.display_order - b.display_order);
   }
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     let query = supabase.from("services").select("*").order("display_order", { ascending: true });
     if (activeOnly) query = query.eq("is_active", true);
     const { data, error } = await query;
@@ -648,7 +710,7 @@ export async function getSocialLinks(): Promise<SocialLink[]> {
       .sort((a, b) => a.display_order - b.display_order);
   }
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     const { data, error } = await supabase
       .from("social_links")
       .select("*")
@@ -740,7 +802,7 @@ export async function getContactMessages(): Promise<ContactMessage[]> {
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
   try {
-    const supabase = await createServerSupabase();
+    const supabase = getDbReadClient();
     const { data, error } = await supabase
       .from("contact_messages")
       .select("*")

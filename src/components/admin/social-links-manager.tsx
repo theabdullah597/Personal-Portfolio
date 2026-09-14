@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Plus, Link2, ExternalLink, Edit2, Trash2, Save, X } from "lucide-react";
 import { SocialLink } from "@/types";
+import { SocialIcon } from "@/components/ui/social-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -160,8 +161,8 @@ export function SocialLinksManager({
             className="flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card hover:border-border transition-all duration-200 shadow-sm"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
-                <Link2 className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+                <SocialIcon platform={link.platform} className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -214,6 +215,28 @@ export function SocialLinksManager({
         description="Enter network platform name and full profile URL."
       >
         <form onSubmit={handleSave} className="space-y-4 pt-2">
+          {/* Quick preset chips */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Quick Select Platform</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {["GitHub", "LinkedIn", "Twitter", "Email", "YouTube", "Discord", "Kaggle", "LeetCode"].map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setPlatform(p)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border transition-all ${
+                    platform.toLowerCase() === p.toLowerCase()
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted/50 border-border/70 hover:border-primary/50 text-foreground"
+                  }`}
+                >
+                  <SocialIcon platform={p} className="w-3.5 h-3.5" />
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <Label htmlFor="link_platform" required>
               Platform Name

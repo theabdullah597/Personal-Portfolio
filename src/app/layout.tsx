@@ -44,10 +44,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Abdullah" }],
   icons: {
     icon: [
-      { url: "/logo.png" },
-      { url: "/icon.png" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo.png", type: "image/png" },
+      { url: "/icon.png", type: "image/png" },
     ],
-    shortcut: "/logo.png",
+    shortcut: "/favicon.ico",
     apple: "/logo.png",
   },
 };

@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, FileText, Code2, ExternalLink, Sparkles, Terminal } from "lucide-react";
+import { ArrowRight, FileText, Code2, Sparkles, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Profile, SocialLink } from "@/types";
 import { Hero3DWrapper } from "./hero-3d-wrapper";
 import { Magnetic } from "@/components/animations/magnetic";
 import { FadeIn } from "@/components/animations/fade-in";
+import { SocialIcon } from "@/components/ui/social-icon";
 
 interface HeroSectionProps {
   profile: Profile;
@@ -96,10 +97,11 @@ export function HeroSection({ profile, socialLinks }: HeroSectionProps) {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-full border border-border/70 bg-card/70 hover:border-primary hover:text-primary text-muted-foreground transition-all shadow-xs"
+                    className="p-2.5 rounded-full border border-border/70 bg-card/70 hover:border-primary hover:text-primary text-muted-foreground transition-all shadow-xs flex items-center justify-center hover:scale-105"
                     title={link.platform}
+                    aria-label={link.platform}
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <SocialIcon platform={link.platform} className="w-4 h-4" />
                   </a>
                 ))}
               </div>

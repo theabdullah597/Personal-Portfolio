@@ -60,11 +60,11 @@ export function Modal({
       {/* Dialog container */}
       <div
         className={cn(
-          "relative z-50 w-full rounded-2xl border border-border/80 bg-card p-6 shadow-2xl animate-in zoom-in-95 duration-200",
+          "relative z-50 flex max-h-[88vh] w-full flex-col rounded-2xl border border-border/80 bg-card shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200",
           maxWidthClass
         )}
       >
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between p-6 pb-4 border-b border-border/60 shrink-0">
           <div>
             {title && (
               <h2 className="text-lg font-semibold text-foreground tracking-tight">
@@ -87,7 +87,7 @@ export function Modal({
           </button>
         </div>
 
-        <div>{children}</div>
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   );

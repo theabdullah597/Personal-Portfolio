@@ -23,14 +23,9 @@ interface ProjectPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 60;
-
-export async function generateStaticParams() {
-  const projects = await getProjects({ publishedOnly: true });
-  return projects.map((project) => ({
-    slug: project.slug,
-  }));
-}
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 0;
 
 export async function generateMetadata({
   params,
@@ -70,16 +65,23 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
     getProfile(),
   ]);
 
-  if (!project || !project.published) {
+  if (!project) {
     notFound();
   }
 
   // Calculate Previous and Next Project navigation
-  const currentIndex = allProjects.findIndex((p) => p.slug === slug);
+  const currentIndex = allProjects.findIndex(
+    (p) =>
+      p.slug === project.slug ||
+      p.slug.toLowerCase() === project.slug.toLowerCase() ||
+      p.id === project.id
+  );
   const prevProject =
     currentIndex > 0 ? allProjects[currentIndex - 1] : null;
   const nextProject =
-    currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
+    currentIndex >= 0 && currentIndex < allProjects.length - 1
+      ? allProjects[currentIndex + 1]
+      : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-warm-canvas text-foreground">

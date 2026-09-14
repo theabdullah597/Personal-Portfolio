@@ -299,8 +299,9 @@ export function ExperienceManager({
         onClose={() => setIsEditorOpen(false)}
         title={editingExp ? "Edit Experience" : "Add Work Experience"}
         description="Enter position details, company, location, dates, and technologies."
+        maxWidth="xl"
       >
-        <form onSubmit={handleSave} className="space-y-4 pt-2">
+        <form onSubmit={handleSave} className="space-y-5 pt-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="exp_company" required>
@@ -446,7 +447,7 @@ export function ExperienceManager({
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-border/70">
+          <div className="sticky bottom-0 z-10 -mx-6 -mb-6 mt-6 px-6 py-4 bg-card/95 backdrop-blur-md border-t border-border/70 flex items-center justify-end gap-3">
             <Button
               type="button"
               variant="outline"
@@ -454,7 +455,7 @@ export function ExperienceManager({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSaving} className="gap-1.5">
+            <Button type="submit" disabled={isSaving} className="gap-1.5 shadow-sm">
               <Save className="w-4 h-4" />
               {isSaving ? "Saving..." : "Save Experience"}
             </Button>

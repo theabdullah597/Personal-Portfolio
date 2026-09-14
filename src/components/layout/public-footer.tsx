@@ -1,23 +1,11 @@
 import Link from "next/link";
 import { getSocialLinks } from "@/lib/supabase/data-service";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import {
-  Mail,
-  ExternalLink,
-  ShieldCheck,
-  Code2,
-} from "lucide-react";
+import { SocialIcon } from "@/components/ui/social-icon";
+import { ShieldCheck } from "lucide-react";
 
 export async function PublicFooter() {
   const socialLinks = await getSocialLinks();
-
-  const getPlatformIcon = (platform: string) => {
-    const p = platform.toLowerCase();
-    if (p.includes("git")) return <Code2 className="w-4 h-4" />;
-    if (p.includes("link")) return <ExternalLink className="w-4 h-4" />;
-    if (p.includes("mail")) return <Mail className="w-4 h-4" />;
-    return <ExternalLink className="w-4 h-4" />;
-  };
 
   return (
     <footer className="border-t border-border/80 bg-card/60 backdrop-blur-md pt-16 pb-10 text-sm">
@@ -91,10 +79,11 @@ export async function PublicFooter() {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2.5 rounded-full border border-border/80 bg-background/60 hover:border-primary hover:text-primary text-muted-foreground transition-all shadow-xs"
+                    className="p-2.5 rounded-full border border-border/80 bg-background/60 hover:border-primary hover:text-primary text-muted-foreground transition-all shadow-xs flex items-center justify-center hover:scale-105"
                     title={link.platform}
+                    aria-label={link.platform}
                   >
-                    {getPlatformIcon(link.platform)}
+                    <SocialIcon platform={link.platform} className="w-4 h-4" />
                   </a>
                 ))}
             </div>
