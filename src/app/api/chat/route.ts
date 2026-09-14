@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
 
     // Fetch context from the portfolio's data service
     const [profile, projects, skills, experiences, education, services, socialLinks] = await Promise.all([
@@ -92,7 +92,7 @@ ${socialLinks.map((s) => `- ${s.platform}: ${s.url}`).join("\n")}
     }));
 
     let responseText = "";
-    
+
     try {
       // Initialize chat session
       const chat = model.startChat({
@@ -110,33 +110,29 @@ ${socialLinks.map((s) => `- ${s.platform}: ${s.url}`).join("\n")}
       });
 
       const latestMessage = messages[messages.length - 1].content;
-      
+
       // Generate the response
       const result = await chat.sendMessage(latestMessage);
       responseText = result.response.text();
     } catch (e: any) {
-      if (e.message?.includes("404")) {
-        console.warn("Falling back to gemini-pro as 1.5-flash is not available for this key.");
-        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro" });
-        const chat = fallbackModel.startChat({
-          history: [
-            {
-              role: "user",
-              parts: [{ text: "System Instruction: " + systemPrompt }],
-            },
-            {
-              role: "model",
-              parts: [{ text: "Understood. I will answer based ONLY on this context." }],
-            },
-            ...geminiMessages.slice(0, -1),
-          ],
-        });
-        const latestMessage = messages[messages.length - 1].content;
-        const result = await chat.sendMessage(latestMessage);
-        responseText = result.response.text();
-      } else {
-        throw e;
-      }
+      console.warn("Primary model failed, falling back to gemini-pro. Error:", e.message);
+      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const chat = fallbackModel.startChat({
+        history: [
+          {
+            role: "user",
+            parts: [{ text: "System Instruction: " + systemPrompt }],
+          },
+          {
+            role: "model",
+            parts: [{ text: "Understood. I will answer based ONLY on this context." }],
+          },
+          ...geminiMessages.slice(0, -1),
+        ],
+      });
+      const latestMessage = messages[messages.length - 1].content;
+      const result = await chat.sendMessage(latestMessage);
+      responseText = result.response.text();
     }
 
     return NextResponse.json({ text: responseText });
