@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot, User, Sparkles, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { ChatbotIcon3D } from "./chatbot-icon-3d";
 import { cn } from "@/lib/utils";
 
 type Message = {
@@ -147,9 +147,7 @@ export function PortfolioChatbot() {
                     {msg.role === "user" ? (
                       <User size={16} />
                     ) : (
-                      <div className="relative w-full h-full">
-                        <Image src="/3d-bot.jpg" alt="AI" fill className="object-cover" sizes="32px" />
-                      </div>
+                      <Bot size={16} />
                     )}
                   </div>
                   <div
@@ -172,8 +170,8 @@ export function PortfolioChatbot() {
               ))}
               {isLoading && (
                 <div className="flex gap-3 max-w-[85%]">
-                  <div className="shrink-0 w-8 h-8 rounded-full overflow-hidden relative">
-                    <Image src="/3d-bot.jpg" alt="AI" fill className="object-cover" sizes="32px" />
+                  <div className="shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    <Bot size={16} />
                   </div>
                   <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-primary/10 dark:bg-primary/20 border border-primary/20 flex items-center gap-2">
                     <Loader2 size={14} className="animate-spin text-primary" />
@@ -240,13 +238,7 @@ export function PortfolioChatbot() {
               transition={{ duration: 0.15 }}
               className="relative w-full h-full overflow-hidden rounded-full"
             >
-              <Image 
-                src="/3d-bot.jpg" 
-                alt="AI Chatbot" 
-                fill 
-                className="object-cover"
-                sizes="56px"
-              />
+              <ChatbotIcon3D />
             </motion.div>
           )}
         </AnimatePresence>

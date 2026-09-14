@@ -91,26 +91,53 @@ ${socialLinks.map((s) => `- ${s.platform}: ${s.url}`).join("\n")}
       parts: [{ text: msg.content }],
     }));
 
-    // Initialize chat session
-    const chat = model.startChat({
-      history: [
-        {
-          role: "user",
-          parts: [{ text: "System Instruction: " + systemPrompt }],
-        },
-        {
-          role: "model",
-          parts: [{ text: "Understood. I will answer based ONLY on this context." }],
-        },
-        ...geminiMessages.slice(0, -1), // Everything except the latest message
-      ],
-    });
-
-    const latestMessage = messages[messages.length - 1].content;
+    let responseText = "";
     
-    // Generate the response
-    const result = await chat.sendMessage(latestMessage);
-    const responseText = result.response.text();
+    try {
+      // Initialize chat session
+      const chat = model.startChat({
+        history: [
+          {
+            role: "user",
+            parts: [{ text: "System Instruction: " + systemPrompt }],
+          },
+          {
+            role: "model",
+            parts: [{ text: "Understood. I will answer based ONLY on this context." }],
+          },
+          ...geminiMessages.slice(0, -1), // Everything except the latest message
+        ],
+      });
+
+      const latestMessage = messages[messages.length - 1].content;
+      
+      // Generate the response
+      const result = await chat.sendMessage(latestMessage);
+      responseText = result.response.text();
+    } catch (e: any) {
+      if (e.message?.includes("404")) {
+        console.warn("Falling back to gemini-pro as 1.5-flash is not available for this key.");
+        const fallbackModel = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const chat = fallbackModel.startChat({
+          history: [
+            {
+              role: "user",
+              parts: [{ text: "System Instruction: " + systemPrompt }],
+            },
+            {
+              role: "model",
+              parts: [{ text: "Understood. I will answer based ONLY on this context." }],
+            },
+            ...geminiMessages.slice(0, -1),
+          ],
+        });
+        const latestMessage = messages[messages.length - 1].content;
+        const result = await chat.sendMessage(latestMessage);
+        responseText = result.response.text();
+      } else {
+        throw e;
+      }
+    }
 
     return NextResponse.json({ text: responseText });
   } catch (error: any) {
