@@ -13,6 +13,7 @@ type Message = {
 
 export function PortfolioChatbot() {
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -24,21 +25,29 @@ export function PortfolioChatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Hide on admin routes
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
     }
   }, [messages, isOpen]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Hide on admin routes
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
+  // Prevent hydration mismatch
+  if (!isMounted) {
+    return null;
+  }
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     e?.preventDefault();
